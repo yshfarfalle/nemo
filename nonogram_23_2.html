@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+    <title>10x10 Grid with Right-Click X</title>
+    <style>
+        /* 캐릭터 */
+        #character {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background-image: url('lcharacter.png'); /* 초기 이미지 설정 */
+            background-size: cover;
+            transition: left 0.5s ease-in-out; /* 좌우 이동 애니메이션 적용 */
+        }
+        /* 아이템 */
+        .btn-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .btn-container button {
+            padding: 10px 20px;
+            cursor: pointer;
+
+            color: #43220b;
+            /*margin-bottom: 30px;*/
+            font-size: 17px; /* 글씨 크기 증가 */
+            background-color: #80BF7F; /* 연두색 배경 */
+            border: 2px solid #26361a;
+            /*border: none;*/
+            border-radius: 5px;
+        }
+        #button1:hover {
+            background-color: rgba(255, 255, 255, 0.85); /* 마우스 오버 시 올리브색 배경 */
+        }
+        #button2:hover {
+            background-color: rgba(255, 255, 255, 0.85); /* 마우스 오버 시 올리브색 배경 */
+        }
+        #button3:hover {
+            background-color: rgba(255, 255, 255, 0.85); /* 마우스 오버 시 올리브색 배경 */
+        }
+        #button4:hover {
+            background-color: rgba(255, 255, 255, 0.85); /* 마우스 오버 시 올리브색 배경 */
+        }
+
+        ul {
+            width:600px;
+            display: none; /* ul 요소를 숨김 */
+            list-style: none;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        li {
+            width:calc(100% / 3 - 10px);
+        }
+
+        img {
+            display: block;
+            width:100%;
+        }
+
+        .modal {
+            display: none;
+            position:fixed;
+            top:0;
+            left:0;
+            width:100vw;
+            height:100vh;
+            background:rgba(0, 0, 0, .8);
+            z-index: 1000; /* 모달을 다른 컨텐츠들 위로 올리기 위해 z-index 추가 */
+
+        }
+
+        .modal .img-wrap img {
+            width:100%;
+        }
+
+        .modal .img-wrap {
+            position: absolute;
+            top:50%;
+            left:50%;
+            width:300px;
+            transform:translate(-50%, -50%);
+        }
+
+        .modal button {
+            position: absolute;
+            bottom: 20px; /* 버튼을 화면 하단에서 20px 위에 배치 */
+            left:50%;
+            width:300px;
+            height:50px;
+            transform:translateX(-50%);
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #4CAF50; /* 배경색 추가 */
+            color: white; /* 텍스트 색상 추가 */
+            border-radius: 5px;
+            transition: background-color 0.2s ease; /* 호버 효과를 위한 전환 추가 */
+
+        }
+
+
+        .modal button:hover {
+            background-color: #284F3B; /* 호버 시 배경색 변경 */
+        }
+
+
+
+
+
+
+
+        /* 타이머 */
+        #timer {
+            font-size: 20px;
+            text-align: center; /* 텍스트를 중앙으로 정렬 */
+            position: absolute; /* 절대 위치 설정 */
+            top: 230px; /* 상단에서 50% 위치 */
+            left: 52%; /* 왼쪽에서 50% 위치 */
+            transform: translate(-50%, -50%); /* 가운데 정렬 */
+        }
+
+        #counter {
+            font-size: 15px;
+            color:saddlebrown;
+            text-align: center; /* 텍스트를 중앙으로 정렬 */
+            position: absolute; /* 절대 위치 설정 */
+            top: 270px; /* 상단에서 50% 위치 */
+            left: 52%; /* 왼쪽에서 50% 위치 */
+            transform: translate(-50%, -50%); /* 가운데 정렬 */
+        }
+
+
+
+
+        /*.container {*/
+        /*    display: flex;*/
+
+        /* 전체 화면을 이등분하는 컨테이너 스타일 */
+
+
+        /* 전체 화면을 세로로 이등분하는 컨테이너 스타일 */
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* 전체 화면 높이 */
+        }
+
+        /* 각 영역을 이등분 */
+        .half {
+            /*flex: 1;*/
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /*border: 1px solid #000;*/
+        }
+
+
+
+
+
+        /* grid12x2 그리드를 flex 컨테이너로 설정하여 가로로 배치 */
+        #grid12x2 {
+            display: flex; /* 그리드 컨테이너를 flexbox로 설정하여 플렉스 컨테이너로 만듦 */
+            flex-wrap: wrap; /* 플렉스 항목들이 컨테이너 너비를 넘을 경우 다음 줄로 넘기도록 설정 */
+            width: 400px; /* 각 박스의 크기와 열 수에 맞춰 설정 */
+            margin-top: 0; /* 컨테이너의 상단 마진을 0으로 설정. 다른 요소와의 간격을 설정하기 위해 사용 */
+            /*margin-left: 150px;*/
+            gap: 2px; /* 박스들 사이의 간격 설정 */
+
+            margin-left: 40px;
+            align-items: center; /* 플렉스 항목들을 컨테이너의 세로 축을 따라 가운데 정렬 */
+            justify-content: center; /* 플렉스 항목들을 컨테이너의 가로 축을 따라 가운데 정렬 */
+            grid-template-columns: repeat(12, 25px); /* 12개의 열을 각 열의 너비가 50px이 되도록 설정 */
+        }
+
+
+
+
+        #grid2x10,
+        #grid10x10 {
+            /*width: 50%; !* 화면의 가로 폭의 절반을 차지하도록 설정 *!*/
+            /*이 코드떄문에 작동 안 됐던 거 ㅜ/
+        }
+
+            grid-template-columns: repeat(2, 50px); /* 10개의 50px 너비의 열 생성 */
+            grid-template-rows: repeat(10, 25px); /* 10개의 50px 높이의 행 생성 */
+            gap: 2px; /* 박스들 사이의 간격 설정 */
+            margin-top: 300px; /* 그리드 상단의 여백 설정 */
+            /*margin-left: 100px;*/
+
+        }
+
+
+        #grid10x10{
+            display: grid; /* 그리드 레이아웃을 사용하여 박스들을 배치 */
+            grid-template-columns: repeat(10, 25px); /* 10개의 50px 너비의 열 생성 */
+            grid-template-rows: repeat(10, 25px); /* 10개의 50px 높이의 행 생성 */
+            /*gap: 2px; !* 박스들 사이의 간격 설정 *!*/
+            /*margin-top: 50px; !* 그리드 상단의 여백 설정 *!*/
+            /*margin-left: 100px;*/
+            border: 1px solid #000;
+            /*0530 수정. border: 1px solid #000; !* 각 박스의 테두리 *!*/
+        }
+
+        #grid10x10 .box {
+            border: 1px solid #000; /* 내부 테두리 */
+        }
+
+        /*#grid10x2{*/
+        /*    display: grid; !* 그리드 레이아웃을 사용하여 박스들을 배치 *!*/
+        /*    grid-template-columns: repeat(10, 50px); !* 10개의 50px 너비의 열 생성 *!*/
+        /*    grid-template-rows: repeat(2, 50px); !* 10개의 50px 높이의 행 생성 *!*/
+        /*    !*gap: 2px; !* 박스들 사이의 간격 설정 *!*!*/
+        /*    margin-top: 50px; !* 그리드 상단의 여백 설정 *!*/
+        /*    !*0530 수정. border: 1px solid #000; !* 각 박스의 테두리 *!*!*/
+
+
+        .grid {
+            display: grid; /* 그리드 레이아웃을 사용하여 박스들을 배치 */
+            grid-template-columns: repeat(2, 25px); /* 10개의 50px 너비의 열 생성 */
+
+            /*grid-template-columns: repeat(10, 50px); !* 10개의 50px 너비의 열 생성 *!*/
+            /*grid-template-rows: repeat(10, 50px); !* 10개의 50px 높이의 행 생성 *!*/
+            /*gap: 2px; !* 박스들 사이의 간격 설정 *!*/
+            /*margin-top: 50px; !* 그리드 상단의 여백 설정 *!*/
+        }
+
+        .grid.no-border .box {
+            border: none; /* Ensure individual boxes within grid2x10 and grid12x2 have no borders */
+        }
+
+
+        .no-border {
+            border: none;
+
+        }
+
+        .no-border .box {
+            border: none;
+        }
+
+
+        .box {
+            width: 25px; /* 각 박스의 너비 */
+            height: 25px; /* 각 박스의 높이 */
+            display: flex; /* 플렉스 박스 레이아웃 사용 */
+            /*border: 1px solid #000; !* 각 박스의 테두리 *!*/
+
+            align-items: center; /* 수직 가운데 정렬 */
+            justify-content: center; /* 수평 가운데 정렬 */
+            cursor: pointer; /* 커서를 포인터 모양으로 변경 */
+            position: relative; /* 자식 요소의 위치 설정을 위한 상대 위치 */
+        }
+        .box .x-mark {
+            position: absolute; /* 절대 위치 설정 */
+            font-size: 24px; /* 글자 크기 설정 */
+            color: red; /* 글자 색상 설정 */
+            display: none; /* 기본적으로 표시하지 않음 */
+        }
+
+        .box .pink-x-mark {
+            position: absolute; /* 절대 위치 설정 */
+            font-size: 24px; /* 글자 크기 설정 */
+            color: darkseagreen; /* 글자 색상 설정 */
+            display: none; /* 기본적으로 표시하지 않음 */
+        }
+    </style>
+</head>
+<body>
+
+
+
+
+
+
+
+<div class="counter" id="counter">힌트 0회 사용</div>
+
+<div id="timer">00:00</div>
+
+
+<div class="container">
+    <!-- 첫 번째 영역 -->
+
+    <div class="half" id="leftHalf">
+        <div class="grid no-border" id="grid2x10"></div> <!-- 2x10 그리드를 생성할 컨테이너 -->
+        <div class="grid" id="grid10x10"></div>
+    </div>
+    <!-- 두 번째 영역 -->
+    <div class="half" id="rightHalf">
+        <div class="grid" id="grid12x2"></div>
+    </div>
+</div>
+
+
+
+<!-- 아이템 -->
+<div class="btn-container">
+    <button id="button1">HOW TO PLAY</button>
+    <button id="button2">HINT</button>
+    <button id="button3">ANSWER</button>
+    <button id="button4">MAIN</button>
+
+
+</div>
+
+<ul style="display: none;">
+    <li><img src="howtoplay.png" alt="How to Play"><span></span></li>
+    <li><img src="hint01.png" alt="Hint"><span></span></li>
+    <li><img src="CROCODILE.png" alt="Answer"><span></span></li>
+</ul>
+
+<div class="modal">
+    <div class="img-wrap">
+        <img src="">
+    </div>
+    <button>X</button>
+</div>
+
+<script>
+    let oppImages = ['shint1.png', 'shint2.png', 'shint3.png', 'shint4.png', 'shint5.png', 'shint6.png', 'shint7.png', 'shint8.png'];
+    let hintClickCount = 0;
+
+
+    let li = document.querySelectorAll('li img');
+    let modal = document.querySelector('.modal');
+    let modalImg = document.querySelector('.modal img');
+    let modalButton = document.querySelector('.modal button');
+    let counterDisplay = document.getElementById('counter');
+
+
+    // 각 버튼 클릭 시 모달에 해당 이미지 표시
+    document.getElementById('button1').addEventListener('click', () => {
+        showModalWithImage(0);
+    });
+
+    document.getElementById('button2').addEventListener('click', () => {
+        hintClickCount++;
+        counterDisplay.textContent = `힌트 ${hintClickCount}회 사용`;
+        showModalWithRandomOppImage();
+    });
+
+    document.getElementById('button3').addEventListener('click', () => {
+        showModalWithImage(2);
+    });
+
+
+    document.getElementById('button4').addEventListener('click', () => {
+        window.location.href = 'index.html';
+    });
+
+    function showModalWithImage(index) {
+        modal.style.display = 'block';
+        modalImg.src = li[index].src;
+        modalImg.alt = li[index].alt;
+    }
+
+    function showModalWithRandomOppImage() {
+        let randomIndex = Math.floor(Math.random() * oppImages.length);
+        modal.style.display = 'block';
+        modalImg.src = oppImages[randomIndex];
+        modalImg.alt = 'Opp Image';
+    }
+
+    // 모달 닫기 버튼 클릭 시 모달 닫기
+    modalButton.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+
+
+
+
+
+    /* 타이머 */
+    // 타이머를 표시할 요소 선택
+    const timerElement = document.getElementById('timer');
+
+    let seconds = 0; // 초 초기값
+
+    // 시간을 표시하는 함수
+    function displayTime() {
+        // 분과 초를 계산
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+
+        // 시간을 두 자리수로 표시하고 문자열로 변환
+        const displayMinutes = String(minutes).padStart(2, '0');
+        const displaySeconds = String(remainingSeconds).padStart(2, '0');
+
+        // 타이머 요소에 시간 표시
+        timerElement.textContent = `${displayMinutes}:${displaySeconds}`;
+    }
+
+    // 1초마다 시간 증가하고 화면에 표시하는 함수
+    function startTimer() {
+        // 1초마다 실행되는 함수
+        setInterval(function() {
+            seconds++; // 초 증가
+            displayTime(); // 시간 표시 업데이트
+        }, 1000); // 1000ms = 1초
+    }
+
+    // 타이머 시작
+    startTimer();
+
+
+    /* 게임 실행 */
+    document.body.style.backgroundImage = "url('gamebg.png')";
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center";
+    document.body.style.height = "100vh";
+
+    const grid2x10 = document.getElementById('grid2x10'); // 2x10 그리드 컨테이너 요소 선택
+    // 숫자를 넣을 박스의 행(row)과 열(column)을 배열로 저장합니다.
+    const boxesWithNumbers = [
+        {row: 2, column: 1, number: 2},     // 3번째 행(인덱스는 0부터 시작)과 2번째 열에 숫자 2를 배치
+        {row: 2, column: 0, number: 2},    // 4번째 행과 2번째 열에 숫자 3을 배치
+        {row: 3, column: 0, number: 3},
+        {row: 3, column: 1, number: 1},    // 5번째 행과 2번째 열에 숫자 9를 배치
+        {row: 4, column: 0, number: 2},    // 6번째 행과 2번째 열에 숫자 7을 배치합니다.
+        {row: 4, column: 1, number: 1},
+
+        {row: 5, column: 0, number: 4}, //41
+        {row: 5, column: 1, number: 1},
+        {row: 6, column: 1, number: 6}, //6
+        {row: 7, column: 1, number: 6},
+        {row: 8, column: 0, number: 2},
+        {row: 8, column: 1, number: 2},
+
+        // 필요한 만큼 박스의 위치와 숫자를 추가합니다.
+    ];
+
+    // 2x10 그리드를 생성하고 박스에 숫자를 넣는 함수
+    function createGrid2x10() {
+        for (let i = 0; i < 20; i++) {
+            const box = document.createElement('div');
+            box.className = 'box';
+
+            // 박스의 행(row)과 열(column)을 가져옵니다.
+            const row = Math.floor(i / 2); // 2x10 그리드에서의 행
+            const column = i % 2; // 2x10 그리드에서의 열
+
+            // 박스에 숫자를 넣을지 확인합니다.
+            const boxWithNumber = boxesWithNumbers.find(box => box.row === row && box.column === column);
+            if (boxWithNumber) {
+                box.textContent = boxWithNumber.number;
+            }
+
+            grid2x10.appendChild(box);
+        }
+    }
+
+    // 그리드 생성 함수를 호출합니다.
+    createGrid2x10();
+
+
+    const grid10x10 = document.getElementById('grid10x10'); // 그리드 컨테이너 요소 선택
+
+
+    // 각 박스의 고유한 색상 값을 저장하는 배열
+    const boxSettings = [
+
+        //1번
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        //2번
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        //3번
+        {value: 'o', color: '#c0da6c'},
+        {value: 'o', color: '#c0da6c'},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'x', color: ''},
+        //4번
+        {value: 'x', color: ''},
+        {value: 'o', color: '#c0da6c'},
+        {value: 'o', color: '#c0da6c'},
+        {value: 'o', color: '#000000'},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'o', color: '#9ccf58'},
+        //5번
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'o', color: '#c0da6c'},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'x', color: ''},
+        //6번
+        {value: 'o', color: '#9ccf58'},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'x', color: ''},
+        //7번
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'o', color: '#c0da6c'},
+        {value: 'o', color: '#c0da6c'},
+        {value: 'o', color: '#c0da6c'},
+        {value: 'o', color: '#c0da6c'},
+        {value: 'o', color: '#c0da6c'},
+        {value: 'x', color: ''},
+
+        //8번
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'x', color: ''},
+
+        //1번
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'o', color: '#9ccf58'},
+        {value: 'o', color: '#9ccf58'},
+        //2번
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+        {value: 'x', color: ''},
+    ];
+
+
+    // 10x10 그리드를 생성
+    for (let i = 0; i < 100; i++) {
+        const box = document.createElement('div'); // 새로운 div 요소 생성
+        box.className = 'box'; // 클래스 이름 설정
+
+
+        // 배열에서 설정값을 가져오기
+        const setting = boxSettings[i]; // 각 박스의 고유한 설정값
+        box.setAttribute('data-value', setting.value);
+        box.setAttribute('data-color', setting.color);
+
+
+        // 좌클릭 시 값에 따라 동작 수행
+        box.addEventListener('click', function () {
+            const value = this.getAttribute('data-value');
+            const color = this.getAttribute('data-color');
+
+            if (value === 'o') {
+                this.style.backgroundColor = color; // 'o' 값이면 배경색 변경
+            } else if (value === 'x') {
+                let xMark = this.querySelector('.x-mark');
+                if (!xMark) {
+                    xMark = document.createElement('div');
+                    xMark.className = 'x-mark';
+                    xMark.textContent = 'X';
+                    this.appendChild(xMark);
+                }
+                xMark.style.display = 'block'; // 'x' 값이면 빨간색 X 표시
+            }
+        });
+
+
+        // 좌클릭으로 X 표시 숨기기
+        box.addEventListener('click', function () {
+            const xMark = this.querySelector('.pink-x-mark');
+            if (xMark) {
+                xMark.style.display = 'none';
+            }
+        });
+
+
+        // X 표시를 위한 요소 생성
+        const xMark = document.createElement('div');
+        xMark.className = 'pink-x-mark';
+        xMark.style.display = 'none'; // 초기에는 X 표시를 숨깁니다.
+        xMark.textContent = 'X'; // X 표시 내용
+        box.appendChild(xMark); // 박스에 X 표시를 추가합니다.
+
+        // 우클릭으로 X 표시 토글 (옵션 기능)
+        box.addEventListener('contextmenu', function (event) {
+            event.preventDefault(); // 우클릭 시 기본 컨텍스트 메뉴를 비활성화
+            const xMark = this.querySelector('.pink-x-mark');
+            if (xMark) {
+                xMark.style.display = xMark.style.display === 'none' ? 'block' : 'none';
+            }
+        });
+
+        // grid.appendChild(box); // 그리드 컨테이너에 박스를 추가합니다.
+        grid10x10.appendChild(box);
+        //그리드 컨테이너에 박스를 추가합니다.
+
+    }
+
+
+
+
+    const grid12x2 = document.getElementById('grid12x2');
+
+    // 박스 위치와 숫자를 저장하는 배열
+    const boxesWithNumbers12x2 = [
+
+        // {row: 4, column: 1, number: 9},    // 5번째 행과 2번째 열에 숫자 9를 배치
+        // {row: 5, column: 1, number: 7},    // 6번째 행과 2번째 열에 숫자 7을 배치합니다.
+
+        {row: 12, column: 2, number: 1}, // 12행 3번째 열 숫자 2
+        {row: 13, column: 2, number: 1},
+        {row: 12, column: 3, number: 2},
+        {row: 13, column: 3, number: 1},
+
+        {row: 12, column: 4, number: 3},
+        {row: 13, column: 4, number: 1},
+
+        {row: 12, column: 5, number: 6},
+        {row: 12, column: 6, number: 2},
+        {row: 12, column: 7, number: 2},
+        {row: 12, column: 8, number: 2},
+        {row: 12, column: 9, number: 1},
+        {row: 13, column: 9, number: 2},
+
+        {row: 12, column: 10, number: 1},
+        {row: 13, column: 10, number: 5},
+        {row: 12, column: 11, number: 1},
+        {row: 13, column: 11, number: 1},
+
+
+
+    ];
+
+    function createGrid12x2() {
+        for (let i = 0; i < 24; i++) {
+            const box = document.createElement('div');
+            box.className = 'box';
+
+            // 행(row)와 열(column) 계산
+            // i를 10으로 나누고 소수점을 버린 후 10을 더해 행 번호를 계산
+            const row = Math.floor(i / 12) + 12;
+
+            // i를 10으로 나눈 나머지 값으로 열 번호를 계산
+            const column = i % 12;
+
+            // boxesWithNumbers10x2 배열에서 현재 행과 열에 맞는 박스를 찾음
+            // find 메서드를 사용하여 조건에 맞는 첫 번째 요소를 찾음
+            const boxWithNumber = boxesWithNumbers12x2.find(box => box.row === row && box.column === column);
+
+            // 만약 박스에 숫자가 있다면, 해당 숫자를 텍스트로 설정
+            if (boxWithNumber) {
+                box.textContent = boxWithNumber.number;
+            }
+            // grid10x2에 생성된 박스를 추가
+            grid12x2.appendChild(box);
+        }
+    }
+
+    createGrid12x2();
+
+</script>
+
+
+
+
+<div id="character"></div>
+
+<script>
+    const character = document.getElementById('character');
+    const screenWidth = window.innerWidth; // 화면 가로 길이
+    const screenHeight = window.innerHeight; // 화면 세로 길이
+    const characterWidth = 80; // 캐릭터의 가로 길이
+    const characterHeight = 80; // 캐릭터의 세로 길이
+    let currentPosition = screenWidth / 2 - characterWidth / 2; // 초기 위치: 화면 중앙
+
+    // 캐릭터를 초기 위치에 배치
+    character.style.left = currentPosition + 'px';
+    character.style.top = (screenHeight - characterHeight) + 'px'; // 화면 맨 아래로 설정
+
+    // 캐릭터를 랜덤하게 좌우로 이동시키는 함수
+    function moveCharacter() {
+        const direction = Math.random() < 0.5 ? -1 : 1; // 랜덤하게 좌우 방향 선택 (-1: 좌측, 1: 우측)
+        const distance = 100; // 이동 거리: 100px
+
+        // 새로운 위치 계산
+        let newPosition = currentPosition + direction * distance;
+
+        // 화면을 벗어나지 않도록 위치 제한
+        newPosition = Math.max(0, Math.min(screenWidth - characterWidth, newPosition));
+
+        // 이동 방향에 따라 이미지 변경
+        if (direction === -1) {
+            character.style.backgroundImage = "url('lcharacter.png')"; // 좌측 이동: 이미지1 설정
+        } else {
+            character.style.backgroundImage = "url('rcharacter.png')"; // 우측 이동: 이미지2 설정
+        }
+
+        // 캐릭터 이동
+        character.style.left = newPosition + 'px';
+
+        // 현재 위치 갱신
+        currentPosition = newPosition;
+
+        // 다음 이동까지 임의의 시간(1~3초) 후에 호출
+        setTimeout(moveCharacter, Math.random() * 2000 /*+ 1000*/);
+    }
+    // 캐릭터 클릭 시 다른 페이지로 이동
+    character.addEventListener('click', function() {
+        window.location.href = 'simagechange.html'; // 이동할 페이지의 URL로 변경
+    });
+    // 초기 이동 시작
+    moveCharacter();
+
+</script>
+</body>
+</html>

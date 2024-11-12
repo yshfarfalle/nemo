@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        ul {
+            list-style: none;
+        }
+        /*#wrap {*/
+        /*    position: absolute;*/
+        /*    top: 50%;*/
+        /*    left: 50%;*/
+        /*    width: 500px;*/
+        /*    height: 400px;*/
+        /*    padding: 40px;*/
+        /*    background: #fff;*/
+        /*    border: 1px solid #aaa;*/
+        /*    transform: translate(-50%, -50%);*/
+        /*    text-align: center; !* 추가된 코드 *!*/
+
+        /*}*/
+
+
+        #wrap {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 400px;
+            height: 400px;
+            padding: 40px;
+            background: #144a14;
+            border: 1px solid #144a14;
+            transform: translate(-50%, -50%);
+            text-align: center; /* 추가된 코드 */
+
+        }
+
+        button {
+/*            width: 100%;
+            height: 40px;
+            background: #000;
+            margin: 5px 0;
+            color: #fff;
+            font-size: 1.25rem;
+            border: none;
+            */
+
+            color: #43220b;
+            margin-bottom: 30px;
+            font-size: 15px; /* 글씨 크기 증가 */
+            background-color: #80BF7F; /* 연두색 배경 */
+            padding: 10px 20px; /* 더 큰 버튼을 위해 패딩 조정 */
+            border: 4px solid #26361a;
+            /*border: none;*/
+            border-radius: 5px;
+            cursor: pointer;
+
+        }
+        /*button:active {*/
+        /*    opacity: .7;*/
+        /*}*/
+
+        /* 버튼 호버 시 배경색 변경 */
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.75);
+        }
+
+
+    </style>
+</head>
+<body>
+<div id="wrap">
+    <div class="select">
+<!--        <p class="question">다음 중 노란 것을 고르시오.</p>-->
+        <p>        <img src="scut02.png">
+        </p>
+        <button data-url="simagechange2.html">응</button>
+        <button data-url="simagechange3.html">아니</button>
+    </div>
+</div>
+
+<script>
+
+    document.body.style.backgroundImage = "url('starbg.png')";
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center";
+    document.body.style.height = "100vh";
+
+    let buttons = document.querySelectorAll('button'); // 변수 이름을 buttons로 수정
+    let resultTxt = document.querySelector('.txt-result');
+
+    buttons.forEach((item) => {
+        item.addEventListener('click', () => {
+            let url = item.getAttribute('data-url');
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });
+</script>
+</body>
+</html>
+
